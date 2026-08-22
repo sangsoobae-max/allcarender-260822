@@ -54,23 +54,42 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
             <!-- 중앙 메인 캘린더 영역 (3칸) -->
             <div id="calendar-wrapper" class="lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300">
-                <!-- 캘린더 컨트롤 -->
+                <!-- 캘린더 컨트롤 (좌우 미니 달력 버튼 및 연간/월간/일간 선택 포함) -->
                 <div class="flex flex-wrap justify-between items-center mb-3 gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/50">
-                    <button onclick="changeMonth(-1)" id="prev-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">&lt; 7월 달력</button>
+                    <button onclick="changeMonth(-1)" id="prev-month-btn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium flex flex-col items-start">
+                        <span class="text-[9px] text-slate-400">이전 달</span>
+                        <span id="prev-month-label">9월 달력</span>
+                    </button>
+                    
                     <div class="flex items-center gap-2">
                         <select id="select-year" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
                         <select id="select-month" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
                         <button onclick="goToday()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1 rounded text-xs font-semibold">오늘</button>
+                        
+                        <!-- 3. 년간, 월간, 일간 양식 선택 -->
+                        <select id="view-mode-select" onchange="changeViewMode()" class="bg-blue-950 border border-blue-700 text-blue-200 text-xs rounded px-2.5 py-1 font-bold focus:outline-none ml-2">
+                            <option value="month">월간 뷰</option>
+                            <option value="year">년간 뷰</option>
+                            <option value="day">일간 뷰</option>
+                        </select>
                     </div>
-                    <button onclick="changeMonth(1)" id="next-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">9월 달력 &gt;</button>
+
+                    <button onclick="changeMonth(1)" id="next-month-btn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium flex flex-col items-end">
+                        <span class="text-[9px] text-slate-400">다음 달</span>
+                        <span id="next-month-label">11월 달력</span>
+                    </button>
                 </div>
 
-                <!-- 캘린더 본문 헤더 -->
-                <div class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2 rounded-t-lg border-x border-t border-slate-700">
-                    <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
+                <!-- 뷰 컨테이너 (월간 / 년간 / 일간에 따라 동적 변경) -->
+                <div id="calendar-view-container" class="flex-1 flex flex-col">
+                    <!-- 월간 헤더 -->
+                    <div id="calendar-header-row" class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2 rounded-t-lg border-x border-t border-slate-700">
+                        <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
+                    </div>
+                    <!-- 그리드 -->
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[500px] rounded-b-lg overflow-hidden border border-slate-700"></div>
                 </div>
-                <!-- 그리드 -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[500px] rounded-b-lg overflow-hidden border border-slate-700"></div>
+
                 <p class="text-[10px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 일정 등록, 등록된 일정을 **클릭**하여 수정하거나 **드래그(이동)**할 수 있습니다.</p>
             </div>
 
@@ -84,9 +103,9 @@
             </div>
         </div>
 
-        <!-- TO DO (금일 해야할 일) 영역 - 메인 달력 밑으로 배치 -->
+        <!-- DO IT (금일 해야할 일) 영역 - 메인 달력 밑으로 배치 -->
         <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
-            <h3 class="text-xs font-bold text-cyan-400 mb-2">TO DO (금일 해야할 일 - 체크 시 취소선 및 일정 동기화)</h3>
+            <h3 class="text-xs font-bold text-cyan-400 mb-2">DO IT (금일 해야할 일 - 체크 시 취소선 및 일정 동기화)</h3>
             <div id="do-it-container" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
         </div>
     </div>
@@ -172,13 +191,14 @@
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6iEAppIlyoSSCoOqlwJ8L8DQzNTBTuMGDveeumMEboWUDo4vQUaPTN1NCtWSfCNkI/exec";
+    <script>                
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvPURcso7TAwtifkZlxGve-xgYi1ffZp2yD992Bp_qcmPlgLBaUgW6D47fCJp8oDo7/exec";
         let currentUser = null;
         let currentDate = new Date();
         let eventsData = [];
         let allUsersData = [];
         let draggedEventId = null;
+        let currentViewMode = 'month'; // 'month', 'year', 'day'
 
         function openSignupModal() { document.getElementById('signup-modal').classList.remove('hidden'); }
         function closeSignupModal() { document.getElementById('signup-modal').classList.add('hidden'); document.getElementById('signup-form').reset(); }
@@ -307,13 +327,12 @@
             document.getElementById('select-year').value = y;
             document.getElementById('select-month').value = m;
 
-            // 이전달 / 다음달 버튼에 월 표시
-            const prevM = new Date(y, m - 1, 1).getMonth() + 1;
-            const nextM = new Date(y, m + 1, 1).getMonth() + 1;
-            document.getElementById('prev-month-btn').innerText = `< ${prevM}월 달력`;
-            document.getElementById('next-month-btn').innerText = `${nextM}월 달력 >`;
+            // 좌우 버튼에 실제 이전/다음 달 이름 표시
+            const prevDate = new Date(y, m - 1, 1);
+            const nextDate = new Date(y, m + 1, 1);
+            document.getElementById('prev-month-label').innerText = `${prevDate.getMonth() + 1}월 달력`;
+            document.getElementById('next-month-label').innerText = `${nextDate.getMonth() + 1}월 달력`;
 
-            // 월별 배경색 변화
             const wrapper = document.getElementById('calendar-wrapper');
             const tints = ['bg-slate-800/20', 'bg-blue-950/30', 'bg-indigo-950/30', 'bg-cyan-950/30', 'bg-slate-900/40'];
             wrapper.className = `lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300 ${tints[m % tints.length]}`;
@@ -324,25 +343,55 @@
             const m = parseInt(document.getElementById('select-month').value);
             currentDate = new Date(y, m, 1);
             updateSelectorsUI();
-            renderMainCalendar();
+            renderCalendar();
             renderEventList();
         }
 
         function changeMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
+            if (currentViewMode === 'year') {
+                currentDate.setFullYear(currentDate.getFullYear() + direction);
+            } else if (currentViewMode === 'day') {
+                currentDate.setDate(currentDate.getDate() + direction);
+            } else {
+                currentDate.setMonth(currentDate.getMonth() + direction);
+            }
             updateSelectorsUI();
-            renderMainCalendar();
+            renderCalendar();
             renderEventList();
         }
 
         function goToday() {
             currentDate = new Date();
             updateSelectorsUI();
-            renderMainCalendar();
+            renderCalendar();
             renderEventList();
         }
 
-        function renderMainCalendar() {
+        function changeViewMode() {
+            currentViewMode = document.getElementById('view-mode-select').value;
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            if (currentViewMode === 'month') {
+                renderMainMonthCalendar();
+            } else if (currentViewMode === 'year') {
+                renderYearCalendar();
+            } else if (currentViewMode === 'day') {
+                renderDayCalendar();
+            }
+        }
+
+        // 월간 캘린더 렌더링 (구글 캘린더식 기간 바 연결 표현)
+        function renderMainMonthCalendar() {
+            const container = document.getElementById('calendar-view-container');
+            container.innerHTML = `
+                <div id="calendar-header-row" class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2 rounded-t-lg border-x border-t border-slate-700">
+                    <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[500px] rounded-b-lg overflow-hidden border border-slate-700"></div>
+            `;
+
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             const firstDayIndex = new Date(year, month, 1).getDay();
@@ -350,8 +399,8 @@
             const prevLastDate = new Date(year, month, 0).getDate();
 
             const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
 
+            // 이전 달 여백 날짜 채우기
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 const dayNum = prevLastDate - i;
                 const prevMonth = month === 0 ? 11 : month - 1;
@@ -360,11 +409,13 @@
                 grid.appendChild(createCell(dayNum, dateStr, true));
             }
 
+            // 이번 달 날짜 채우기
             for (let day = 1; day <= lastDate; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 grid.appendChild(createCell(day, dateStr, false));
             }
 
+            // 다음 달 여백 날짜 채우기
             const totalCells = grid.children.length;
             const nextDaysCount = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
             for (let day = 1; day <= nextDaysCount; day++) {
@@ -381,7 +432,7 @@
             
             cell.innerHTML = `<span class="font-bold text-xs ${isOtherMonth ? 'text-slate-500' : 'text-slate-300'} mb-1">${dayNum}</span>`;
 
-            // 드래그 앤 드롭으로 날짜 변경 기능
+            // 드래그 앤 드롭 일정 이동
             cell.addEventListener('dragover', (e) => e.preventDefault());
             cell.addEventListener('drop', async (e) => {
                 e.preventDefault();
@@ -416,21 +467,17 @@
                 await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 draggedEventId = null;
                 await loadEvents();
-                
-                const [y, m] = dateStr.split('-');
-                currentDate = new Date(y, m - 1, 1);
-                updateSelectorsUI();
-                renderMainCalendar();
             });
 
             cell.addEventListener('dblclick', () => {
                 const [y, m] = dateStr.split('-');
                 currentDate = new Date(y, m - 1, 1);
                 updateSelectorsUI();
-                renderMainCalendar();
+                renderCalendar();
                 openEventModal(dateStr);
             });
 
+            // 해당 일자에 포함되는 모든 일정 필터링
             const visibleEvents = eventsData.filter(ev => {
                 if (!hasEventOnDate(ev, dateStr)) return false;
                 if (currentUser.grade === '관리자') return true;
@@ -444,16 +491,27 @@
             });
 
             visibleEvents.forEach(ev => {
-                cell.classList.remove('bg-slate-900/90');
-                cell.classList.add('bg-blue-950/50', 'border-blue-900/60');
+                const isStart = (ev.startDate === dateStr);
+                const isEnd = (ev.endDate === dateStr);
+                const isMultiDay = ev.startDate !== ev.endDate;
 
                 const evDiv = document.createElement('div');
                 evDiv.draggable = true;
-                evDiv.className = `text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium px-1.5 py-0.5 rounded mb-1 truncate shadow flex items-center justify-between cursor-grab ${ev.isCompleted ? 'line-through opacity-70 bg-slate-700' : ''}`;
                 
-                // 기간이 다를 경우 표시 처리 및 제목
+                // 구글 캘린더 스타일 기간 바 표현 (시작일, 중간일, 마감일 디자인 분기)
+                let barStyle = "bg-blue-600 hover:bg-blue-500 text-white";
+                if (ev.isCompleted) barStyle = "bg-slate-700 text-slate-400 line-through";
+
+                let roundClass = "rounded";
+                if (isMultiDay) {
+                    if (isStart && !isEnd) roundClass = "rounded-l rounded-r-none mr-[-4px]";
+                    else if (!isStart && !isEnd) roundClass = "rounded-none mx-[-4px]";
+                    else if (!isStart && isEnd) roundClass = "rounded-r rounded-l-none ml-[-4px]";
+                }
+
+                evDiv.className = `text-[11px] ${barStyle} font-medium px-1.5 py-0.5 mb-1 truncate shadow flex items-center justify-between cursor-grab ${roundClass}`;
                 evDiv.innerHTML = `<span>📅 <strong>${ev.title}</strong></span>`;
-                
+
                 evDiv.addEventListener('dragstart', () => { draggedEventId = ev.id; });
                 evDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -464,6 +522,81 @@
             });
 
             return cell;
+        }
+
+        // 년간 뷰 렌더링
+        function renderYearCalendar() {
+            const container = document.getElementById('calendar-view-container');
+            const year = currentDate.getFullYear();
+            container.innerHTML = `
+                <div class="grid grid-cols-3 gap-3 overflow-y-auto max-h-[520px] p-2 flex-1"></div>
+            `;
+            const grid = container.querySelector('div');
+
+            for (let m = 0; m < 12; m++) {
+                const monthBox = document.createElement('div');
+                monthBox.className = 'bg-slate-900/80 p-2 rounded-lg border border-slate-700/60';
+                monthBox.innerHTML = `<h4 class="text-xs font-bold text-blue-400 mb-1 text-center">${m + 1}월</h4>`;
+                
+                const miniGrid = document.createElement('div');
+                miniGrid.className = 'grid grid-cols-7 gap-1 text-center text-[10px] text-slate-300';
+                ['일','월','화','수','목','금','토'].forEach(d => miniGrid.innerHTML += `<span class="text-slate-500 font-bold">${d}</span>`);
+
+                const firstDay = new Date(year, m, 1).getDay();
+                const lastDate = new Date(year, m + 1, 0).getDate();
+
+                for (let i = 0; i < firstDay; i++) miniGrid.innerHTML += `<span></span>`;
+                for (let d = 1; d <= lastDate; d++) {
+                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const hasEv = eventsData.some(ev => hasEventOnDate(ev, dateStr));
+                    miniGrid.innerHTML += `<span class="py-0.5 rounded cursor-pointer ${hasEv ? 'bg-blue-600 text-white font-bold' : 'hover:bg-slate-800'}" onclick="jumpToMonth(${m}, '${dateStr}')">${d}</span>`;
+                }
+                monthBox.appendChild(miniGrid);
+                grid.appendChild(monthBox);
+            }
+        }
+
+        function jumpToMonth(m, dateStr) {
+            currentDate = new Date(currentDate.getFullYear(), m, 1);
+            currentViewMode = 'month';
+            document.getElementById('view-mode-select').value = 'month';
+            updateSelectorsUI();
+            renderCalendar();
+        }
+
+        // 일간 뷰 렌더링
+        function renderDayCalendar() {
+            const container = document.getElementById('calendar-view-container');
+            const dateStr = currentDate.toISOString().split('T')[0];
+            
+            container.innerHTML = `
+                <div class="bg-slate-900/90 p-4 rounded-lg border border-slate-700 flex-1 overflow-y-auto space-y-3">
+                    <h3 class="text-base font-bold text-blue-400 border-b border-slate-800 pb-2">📅 ${dateStr} 상세 일정</h3>
+                    <div id="day-events-list" class="space-y-2"></div>
+                </div>
+            `;
+
+            const dayEventsContainer = document.getElementById('day-events-list');
+            const dayEvents = eventsData.filter(ev => hasEventOnDate(ev, dateStr));
+
+            if (dayEvents.length === 0) {
+                dayEventsContainer.innerHTML = '<p class="text-slate-500 text-sm">등록된 일정이 없습니다. 더블클릭하여 일정을 추가해보세요.</p>';
+                return;
+            }
+
+            dayEvents.forEach(ev => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-800/80 p-3 rounded-lg border border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-500';
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-200">${ev.title}</h4>
+                        <p class="text-xs text-slate-400">기간: ${ev.startDate} ~ ${ev.endDate} | 반복: ${ev.repeatCycle || '없음'}</p>
+                    </div>
+                    <span class="text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded">${ev.openRange}</span>
+                `;
+                div.addEventListener('click', () => openEventModal(null, ev));
+                dayEventsContainer.appendChild(div);
+            });
         }
 
         function hasEventOnDate(ev, targetDateStr) {
@@ -478,7 +611,7 @@
                 if (result.status === 'success') {
                     eventsData = result.events || [];
                     allUsersData = result.users || [];
-                    renderMainCalendar();
+                    renderCalendar();
                     renderEventList();
                 }
             } catch (err) {
@@ -519,7 +652,6 @@
                 const div = document.createElement('div');
                 div.className = `bg-slate-900/90 rounded-lg border transition ${isTodayEvent ? 'p-2.5 border-blue-500/80 shadow' : 'p-2 border-slate-700/60 opacity-90'} hover:border-blue-400 cursor-pointer`;
                 
-                // 26/08/22 형태로 날짜 축소 변환 (시간 제거)
                 const fmtStart = ev.startDate.replace(/^20/, '').replace(/-/g, '/');
                 const fmtEnd = ev.endDate.replace(/^20/, '').replace(/-/g, '/');
                 const dateDisplay = (ev.startDate === ev.endDate) ? fmtStart : `${fmtStart}~${fmtEnd}`;
@@ -571,7 +703,7 @@
                     const [y, m] = startDate.split('-');
                     currentDate = new Date(y, m - 1, 1);
                     updateSelectorsUI();
-                    renderMainCalendar();
+                    renderCalendar();
                 }
             } catch (err) {
                 alert('일정 저장 중 오류가 발생했습니다.');
@@ -602,13 +734,12 @@
             recognition.onspeechend = () => { micBtnText.innerText = "음성입력"; recognition.stop(); };
         }
 
-        // TO DO 노트 입력 및 일정 동기화
         function renderToDoNotes() {
             const container = document.getElementById('do-it-container');
             container.innerHTML = '';
             const todayStr = new Date().toISOString().split('T')[0];
 
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const savedText = localStorage.getItem(`todo_text_${i}`) || '';
                 const savedCheck = localStorage.getItem(`todo_check_${i}`) === 'true';
 
@@ -623,7 +754,7 @@
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.value = savedText;
-                input.placeholder = `할 일 ${i}번 (당일 일정 자동 등록)`;
+                input.placeholder = `할 일 ${i}번을 입력하세요`;
                 input.className = `w-full bg-transparent text-xs text-white focus:outline-none ${savedCheck ? 'line-through-custom' : ''}`;
 
                 checkbox.addEventListener('change', async () => {
@@ -633,7 +764,7 @@
                     const matchingEvent = eventsData.find(ev => ev.title === input.value && ev.startDate === todayStr);
                     if (matchingEvent) {
                         matchingEvent.isCompleted = checkbox.checked;
-                        renderMainCalendar();
+                        renderCalendar();
                         renderEventList();
                     }
                 });
