@@ -35,14 +35,14 @@
     <!-- 2. 메인 대시보드 화면 -->
     <div id="app-container" class="hidden w-full max-w-7xl bg-slate-900/95 backdrop-blur border border-slate-800/80 p-5 rounded-2xl shadow-2xl space-y-4">
         
-        <!-- 상단 헤더: 사용자 정보 좌측 / 기능 버튼 우측 -->
-        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
+        <!-- 상단 헤더: 좌측 끝 환영인사/등급, 우측 끝 기능 버튼 -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <div class="flex items-center gap-3">
-                <h2 id="welcome-msg" class="text-lg font-bold text-blue-400">환영합니다!</h2>
-                <span id="user-grade-badge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-semibold">등급</span>
+                <h2 id="welcome-msg" class="text-sm font-bold text-blue-400">환영합니다!</h2>
+                <span id="user-grade-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-semibold">등급</span>
             </div>
             <div class="flex gap-2 items-center">
-                <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow transition" title="음성으로 일정 입력">
+                <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow transition">
                     🎤 <span id="mic-text">음성입력</span>
                 </button>
                 <button onclick="openEventModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow">+ 일정등록</button>
@@ -50,25 +50,19 @@
             </div>
         </div>
 
-        <!-- DO IT (금일 해야할 일) 영역 상단 배치 -->
-        <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
-            <h3 class="text-xs font-bold text-cyan-400 mb-2">DO IT (금일 해야할 일 - 체크 시 당일 일정 및 취소선 동시 반영)</h3>
-            <div id="do-it-container" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
-        </div>
-
-        <!-- 메인 그리드 (캘린더 3칸 / 전체 일정 1칸) -->
+        <!-- 메인 그리드 (캘린더 3칸 / 전체 일정 1칸) 중앙 중심 배치 -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
             <!-- 중앙 메인 캘린더 영역 (3칸) -->
             <div id="calendar-wrapper" class="lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300">
                 <!-- 캘린더 컨트롤 -->
                 <div class="flex flex-wrap justify-between items-center mb-3 gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/50">
-                    <button onclick="changeMonth(-1)" id="prev-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">&lt; 지난달</button>
+                    <button onclick="changeMonth(-1)" id="prev-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">&lt; 7월 달력</button>
                     <div class="flex items-center gap-2">
                         <select id="select-year" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
                         <select id="select-month" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
                         <button onclick="goToday()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1 rounded text-xs font-semibold">오늘</button>
                     </div>
-                    <button onclick="changeMonth(1)" id="next-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">다음달 &gt;</button>
+                    <button onclick="changeMonth(1)" id="next-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">9월 달력 &gt;</button>
                 </div>
 
                 <!-- 캘린더 본문 헤더 -->
@@ -76,7 +70,7 @@
                     <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
                 </div>
                 <!-- 그리드 -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[520px] rounded-b-lg overflow-hidden border border-slate-700"></div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[500px] rounded-b-lg overflow-hidden border border-slate-700"></div>
                 <p class="text-[10px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 일정 등록, 등록된 일정을 **클릭**하여 수정하거나 **드래그(이동)**할 수 있습니다.</p>
             </div>
 
@@ -88,6 +82,12 @@
                 </h3>
                 <div id="event-list-container" class="space-y-2 overflow-y-auto max-h-[520px] text-xs flex-1 pr-1"></div>
             </div>
+        </div>
+
+        <!-- TO DO (금일 해야할 일) 영역 - 메인 달력 밑으로 배치 -->
+        <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+            <h3 class="text-xs font-bold text-cyan-400 mb-2">TO DO (금일 해야할 일 - 체크 시 취소선 및 일정 동기화)</h3>
+            <div id="do-it-container" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
         </div>
     </div>
 
@@ -123,11 +123,11 @@
                 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">시작일</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">시작일 (년월일 기본 표시)</label>
                         <input type="date" id="ev-start-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">마감일</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">마감일 (년월일 기본 표시)</label>
                         <input type="date" id="ev-end-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs">
                     </div>
                 </div>
@@ -150,9 +150,8 @@
                 <textarea id="ev-memo" placeholder="메모 및 내용" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"></textarea>
                 
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">참여자 선택 (관련자 이메일 발송 연동)</label>
+                    <label class="block text-xs text-slate-400 mb-1">참여자 선택</label>
                     <select id="ev-participants" multiple class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs h-16"></select>
-                    <span class="text-[10px] text-slate-500">Ctrl(Cmd)을 누르고 여러 명을 선택할 수 있습니다.</span>
                 </div>
 
                 <div>
@@ -174,7 +173,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4xfgF27-Hx0YHf03FCjQyRL_VnD6s1IbeE1u_vHLLA2zLXe2jQfU9yh-bL7rmOILy/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6iEAppIlyoSSCoOqlwJ8L8DQzNTBTuMGDveeumMEboWUDo4vQUaPTN1NCtWSfCNkI/exec";
         let currentUser = null;
         let currentDate = new Date();
         let eventsData = [];
@@ -264,7 +263,7 @@
                     document.getElementById('user-grade-badge').innerText = `등급: ${currentUser.grade}`;
                     initYearMonthSelectors();
                     loadEvents();
-                    renderDoItNotes();
+                    renderToDoNotes();
                 } else {
                     alert(result.message);
                 }
@@ -308,15 +307,15 @@
             document.getElementById('select-year').value = y;
             document.getElementById('select-month').value = m;
 
-            // 상단 이전달/다음달 버튼에 작은 달력 이름 표시
+            // 이전달 / 다음달 버튼에 월 표시
             const prevM = new Date(y, m - 1, 1).getMonth() + 1;
             const nextM = new Date(y, m + 1, 1).getMonth() + 1;
             document.getElementById('prev-month-btn').innerText = `< ${prevM}월 달력`;
             document.getElementById('next-month-btn').innerText = `${nextM}월 달력 >`;
 
-            // 월이 바뀔 때 배경 틴트 컬러 미세 변경
+            // 월별 배경색 변화
             const wrapper = document.getElementById('calendar-wrapper');
-            const tints = ['bg-slate-800/20', 'bg-blue-950/20', 'bg-indigo-950/20', 'bg-cyan-950/20', 'bg-slate-900/40'];
+            const tints = ['bg-slate-800/20', 'bg-blue-950/30', 'bg-indigo-950/30', 'bg-cyan-950/30', 'bg-slate-900/40'];
             wrapper.className = `lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300 ${tints[m % tints.length]}`;
         }
 
@@ -378,11 +377,11 @@
 
         function createCell(dayNum, dateStr, isOtherMonth) {
             const cell = document.createElement('div');
-            cell.className = `bg-slate-900/90 p-1.5 min-h-[90px] border border-slate-800/80 flex flex-col cursor-pointer hover:bg-slate-800/90 transition ${isOtherMonth ? 'opacity-30' : ''}`;
+            cell.className = `bg-slate-900/90 p-1.5 min-h-[85px] border border-slate-800/80 flex flex-col cursor-pointer hover:bg-slate-800/90 transition ${isOtherMonth ? 'opacity-30' : ''}`;
             
             cell.innerHTML = `<span class="font-bold text-xs ${isOtherMonth ? 'text-slate-500' : 'text-slate-300'} mb-1">${dayNum}</span>`;
 
-            // 드래그 앤 드롭으로 날짜 이동 기능
+            // 드래그 앤 드롭으로 날짜 변경 기능
             cell.addEventListener('dragover', (e) => e.preventDefault());
             cell.addEventListener('drop', async (e) => {
                 e.preventDefault();
@@ -390,20 +389,15 @@
                 const evToMove = eventsData.find(ev => ev.id === draggedEventId);
                 if (!evToMove) return;
 
-                // 기간 유지하면서 시작일과 마감일 평행 이동
                 const oldStart = new Date(evToMove.startDate);
                 const newStart = new Date(dateStr);
                 const diffTime = newStart - oldStart;
                 const oldEnd = new Date(evToMove.endDate);
                 const newEnd = new Date(oldEnd.getTime() + diffTime);
 
-                const newStartDateStr = dateStr;
-                const newEndDateStr = newEnd.toISOString().split('T')[0];
+                evToMove.startDate = dateStr;
+                evToMove.endDate = newEnd.toISOString().split('T')[0];
 
-                evToMove.startDate = newStartDateStr;
-                evToMove.endDate = newEndDateStr;
-
-                // 백엔드 업데이트 요청
                 const payload = {
                     action: 'updateEvent',
                     id: evToMove.id,
@@ -423,7 +417,6 @@
                 draggedEventId = null;
                 await loadEvents();
                 
-                // 해당 날짜로 자동 포커스 이동
                 const [y, m] = dateStr.split('-');
                 currentDate = new Date(y, m - 1, 1);
                 updateSelectorsUI();
@@ -458,16 +451,10 @@
                 evDiv.draggable = true;
                 evDiv.className = `text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium px-1.5 py-0.5 rounded mb-1 truncate shadow flex items-center justify-between cursor-grab ${ev.isCompleted ? 'line-through opacity-70 bg-slate-700' : ''}`;
                 
-                const startM = ev.startDate.split('-')[1];
-                const startD = ev.startDate.split('-')[2];
-                const endM = ev.endDate.split('-')[1];
-                const endD = ev.endDate.split('-')[2];
-                const dateText = (ev.startDate === ev.endDate) ? `${startM}/${startD}` : `${startM}/${startD}~${endM}/${endD}`;
-
-                evDiv.innerHTML = `<span>📅 ${dateText} <strong>${ev.title}</strong></span>`;
+                // 기간이 다를 경우 표시 처리 및 제목
+                evDiv.innerHTML = `<span>📅 <strong>${ev.title}</strong></span>`;
                 
                 evDiv.addEventListener('dragstart', () => { draggedEventId = ev.id; });
-                
                 evDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
                     openEventModal(null, ev);
@@ -481,18 +468,7 @@
 
         function hasEventOnDate(ev, targetDateStr) {
             if (!ev.startDate || !ev.endDate) return false;
-            if (ev.repeatCycle === '없음') {
-                return targetDateStr >= ev.startDate && targetDateStr <= ev.endDate;
-            } else if (ev.repeatCycle === '매월') {
-                const targetDay = parseInt(targetDateStr.split('-')[2]);
-                const startDay = parseInt(ev.startDate.split('-')[2]);
-                return targetDay === startDay && targetDateStr >= ev.startDate;
-            } else if (ev.repeatCycle === '매년') {
-                const targetMMDD = targetDateStr.slice(5);
-                const startMMDD = ev.startDate.slice(5);
-                return targetMMDD === startMMDD && targetDateStr >= ev.startDate;
-            }
-            return false;
+            return targetDateStr >= ev.startDate && targetDateStr <= ev.endDate;
         }
 
         async function loadEvents() {
@@ -516,9 +492,8 @@
 
             const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
-            // 해당 월 전체 일정만 필터링 및 날짜순 정렬
             let myEvents = eventsData.filter(ev => {
-                if (!ev.startDate.startsWith(currentYearMonth)) return false;
+                if (!ev.startDate.startsWith(currentYearMonth) && !ev.endDate.startsWith(currentYearMonth)) return false;
                 if (currentUser.grade === '관리자') return true;
                 if (ev.openRange === '개인') {
                     return ev.authorEmail === currentUser.email || (ev.participants && ev.participants.includes(currentUser.email));
@@ -542,19 +517,18 @@
             myEvents.forEach(ev => {
                 const isTodayEvent = (ev.startDate === todayStr || ev.endDate === todayStr);
                 const div = document.createElement('div');
-                // 당일 일정은 조금 크게, 나머지는 자동 비율 축소
-                div.className = `bg-slate-900/90 rounded-lg border transition ${isTodayEvent ? 'p-3 border-blue-500/80 shadow-md shadow-blue-950/50' : 'p-2 border-slate-700/60 opacity-90'} hover:border-blue-400 cursor-pointer`;
+                div.className = `bg-slate-900/90 rounded-lg border transition ${isTodayEvent ? 'p-2.5 border-blue-500/80 shadow' : 'p-2 border-slate-700/60 opacity-90'} hover:border-blue-400 cursor-pointer`;
                 
-                // 연도 시간 삭제 후 YY/MM/DD 형태로 압축 표기
-                const fmtStart = ev.startDate.replace(/^\d{2}/, '');
-                const fmtEnd = ev.endDate.replace(/^\d{2}/, '');
+                // 26/08/22 형태로 날짜 축소 변환 (시간 제거)
+                const fmtStart = ev.startDate.replace(/^20/, '').replace(/-/g, '/');
+                const fmtEnd = ev.endDate.replace(/^20/, '').replace(/-/g, '/');
+                const dateDisplay = (ev.startDate === ev.endDate) ? fmtStart : `${fmtStart}~${fmtEnd}`;
 
                 div.innerHTML = `<p class="font-bold ${isTodayEvent ? 'text-blue-300 text-xs' : 'text-slate-300 text-[11px]'} flex justify-between">
                                     <span class="${ev.isCompleted ? 'line-through text-slate-500' : ''}">${ev.title}</span>
-                                    <span class="text-[10px] text-cyan-400 font-normal">[${ev.repeatCycle}]</span>
+                                    <span class="text-[10px] text-cyan-400 font-normal">[${ev.repeatCycle || '없음'}]</span>
                                  </p>
-                                 <p class="text-[10px] text-slate-400 mt-0.5">📅 ${fmtStart} ~ ${fmtEnd}</p>
-                                 ${ev.location ? `<p class="text-[10px] text-slate-400">📍 ${ev.location}</p>` : ''}`;
+                                 <p class="text-[10px] text-slate-400 mt-0.5">📅 ${dateDisplay}</p>`;
                 
                 div.addEventListener('click', () => openEventModal(null, ev));
                 container.appendChild(div);
@@ -570,16 +544,6 @@
             const startDate = document.getElementById('ev-start-date').value;
             const endDate = document.getElementById('ev-end-date').value;
             const title = document.getElementById('ev-title').value;
-
-            const conflictingEvents = eventsData.filter(ev => {
-                if (eventId && ev.id === eventId) return false;
-                return startDate >= ev.startDate && startDate <= ev.endDate;
-            });
-
-            if (conflictingEvents.length > 0) {
-                const confirmProceed = confirm(`⚠️ 경고: 선택하신 시작일(${startDate})에 이미 등록된 일정("${conflictingEvents[0].title}")이 있습니다. 그래도 등록하시겠습니까?`);
-                if (!confirmProceed) return;
-            }
 
             const payload = {
                 action: eventId ? 'updateEvent' : 'addEvent',
@@ -617,49 +581,36 @@
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 브라우저를 이용해 주세요.");
+                alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
                 return;
             }
 
             const recognition = new SpeechRecognition();
             recognition.lang = 'ko-KR';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
             const micBtnText = document.getElementById('mic-text');
             micBtnText.innerText = "듣고 있어요...";
-
             recognition.start();
 
             recognition.onresult = async (event) => {
                 const speechText = event.results[0][0].transcript;
                 micBtnText.innerText = "음성입력";
-                
                 openEventModal();
                 document.getElementById('ev-title').value = speechText;
-                alert(`🎤 인식된 음성 내용: "${speechText}"\n내용을 확인하고 저장해 주세요.`);
             };
 
-            recognition.onerror = () => {
-                micBtnText.innerText = "음성입력";
-                alert("음성 인식 중 오류가 발생했습니다. 다시 시도해 주세요.");
-            };
-
-            recognition.onspeechend = () => {
-                micBtnText.innerText = "음성입력";
-                recognition.stop();
-            };
+            recognition.onerror = () => { micBtnText.innerText = "음성입력"; };
+            recognition.onspeechend = () => { micBtnText.innerText = "음성입력"; recognition.stop(); };
         }
 
-        // DO IT 노트 입력 및 당일 일정 동기화 / 취소선 연동
-        function renderDoItNotes() {
+        // TO DO 노트 입력 및 일정 동기화
+        function renderToDoNotes() {
             const container = document.getElementById('do-it-container');
             container.innerHTML = '';
             const todayStr = new Date().toISOString().split('T')[0];
 
             for (let i = 1; i <= 3; i++) {
-                const savedText = localStorage.getItem(`doit_text_${i}`) || '';
-                const savedCheck = localStorage.getItem(`doit_check_${i}`) === 'true';
+                const savedText = localStorage.getItem(`todo_text_${i}`) || '';
+                const savedCheck = localStorage.getItem(`todo_check_${i}`) === 'true';
 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'flex items-center gap-2 bg-slate-900/90 p-2 rounded-lg border border-slate-700/60';
@@ -676,10 +627,9 @@
                 input.className = `w-full bg-transparent text-xs text-white focus:outline-none ${savedCheck ? 'line-through-custom' : ''}`;
 
                 checkbox.addEventListener('change', async () => {
-                    localStorage.setItem(`doit_check_${i}`, checkbox.checked);
+                    localStorage.setItem(`todo_check_${i}`, checkbox.checked);
                     input.classList.toggle('line-through-custom', checkbox.checked);
 
-                    // 달력 일정에도 취소선 및 완료 상태 동기화 처리
                     const matchingEvent = eventsData.find(ev => ev.title === input.value && ev.startDate === todayStr);
                     if (matchingEvent) {
                         matchingEvent.isCompleted = checkbox.checked;
@@ -689,16 +639,15 @@
                 });
 
                 input.addEventListener('blur', async () => {
-                    localStorage.setItem(`doit_text_${i}`, input.value);
+                    localStorage.setItem(`todo_text_${i}`, input.value);
                     if (input.value.trim()) {
-                        // 입력 시 당일 일정으로 자동 등록 백엔드 전송
                         const payload = {
                             action: 'addEvent',
                             title: input.value,
                             startDate: todayStr,
                             endDate: todayStr,
                             participants: currentUser.email,
-                            memo: 'DO IT 자동 등록',
+                            memo: 'TO DO 자동 등록',
                             repeatCycle: '없음',
                             location: '',
                             openRange: '개인',
