@@ -6,7 +6,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .line-through-custom { text-decoration: line-through; color: #64748b; }
-        /* 스크롤바 커스텀 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -42,7 +41,6 @@
                 <span id="user-grade-badge" class="text-xs px-3 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-700 font-semibold">등급</span>
             </div>
             <div class="flex gap-2 items-center">
-                <!-- 음성 인식 마이크 버튼 -->
                 <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow-md transition" title="음성으로 일정 입력">
                     🎤 <span id="mic-text">음성 입력</span>
                 </button>
@@ -76,9 +74,9 @@
                 <div class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2.5 rounded-t-lg border-x border-t border-slate-700">
                     <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
                 </div>
-                <!-- 그리드 (행 높이 확보) -->
+                <!-- 그리드 -->
                 <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[580px] rounded-b-lg overflow-hidden border border-slate-700"></div>
-                <p class="text-[11px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 해당 일정이 등록/수정되며, 등록된 일정 바를 클릭하면 수정할 수 있습니다.</p>
+                <p class="text-[11px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 해당 일정이 등록되며, 등록된 일정 바를 클릭하면 수정할 수 있습니다.</p>
             </div>
 
             <!-- 우측 사이드 (전체 일정 리스트) -->
@@ -181,7 +179,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv5bHYBl4A6EPwxd_cr4E8jOhCnHN8txN1Rl2N-6Plu-m-Io2AXAYcnG8ImvFIuKg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby42XXjHLwBMVg_UmWFDu-AKgfEGbLA1arjnEIdOqt-PkTeh35kdGELrVP_wOTyUWcE/exec";
         let currentUser = null;
         let currentDate = new Date();
         let eventsData = [];
@@ -351,7 +349,6 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
 
-            // 이전 달 여백 날짜 채우기
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 const dayNum = prevLastDate - i;
                 const prevMonth = month === 0 ? 11 : month - 1;
@@ -360,13 +357,11 @@
                 grid.appendChild(createCell(dayNum, dateStr, true));
             }
 
-            // 이번 달 날짜 채우기
             for (let day = 1; day <= lastDate; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 grid.appendChild(createCell(day, dateStr, false));
             }
 
-            // 다음 달 여백 채우기 (총 35 또는 42칸 맞춤)
             const totalCells = grid.children.length;
             const nextDaysCount = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
             for (let day = 1; day <= nextDaysCount; day++) {
@@ -379,12 +374,10 @@
 
         function createCell(dayNum, dateStr, isOtherMonth) {
             const cell = document.createElement('div');
-            // 일정이 있는 날은 바탕색과 확실히 구분되는 다크 블루 틴트 컬러 적용
             cell.className = `bg-slate-900/90 p-1.5 min-h-[95px] border border-slate-800/80 flex flex-col cursor-pointer hover:bg-slate-800 transition ${isOtherMonth ? 'opacity-30' : ''}`;
             
             cell.innerHTML = `<span class="font-bold text-xs ${isOtherMonth ? 'text-slate-500' : 'text-slate-300'} mb-1">${dayNum}</span>`;
 
-            // 날짜 더블클릭 시 해당 날짜로 신규 일정 등록 창 열기
             cell.addEventListener('dblclick', () => {
                 const [y, m] = dateStr.split('-');
                 currentDate = new Date(y, m - 1, 1);
@@ -402,7 +395,6 @@
                 }
             });
 
-            // 해당 날짜에 포함되는 가시적 일정 필터링 (반복 주기 포함 계산)
             const visibleEvents = eventsData.filter(ev => {
                 if (!hasEventOnDate(ev, dateStr)) return false;
                 if (currentUser.grade === '관리자') return true;
@@ -415,15 +407,13 @@
                 return false;
             });
 
-            // 일정이 있는 칸은 옅은 파란색 바(Bar)와 월/일, 제목, 내용 표시
             visibleEvents.forEach(ev => {
                 cell.classList.remove('bg-slate-900/90');
-                cell.classList.add('bg-blue-950/40', 'border-blue-900/60'); // 옅은 파란색 배경 강조
+                cell.classList.add('bg-blue-950/40', 'border-blue-900/60');
 
                 const evDiv = document.createElement('div');
                 evDiv.className = 'text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium px-1.5 py-0.5 rounded mb-1 truncate shadow flex items-center justify-between';
                 
-                // 연도와 시간 제외, 월/일 및 제목/내용 표기
                 const startM = ev.startDate.split('-')[1];
                 const startD = ev.startDate.split('-')[2];
                 const endM = ev.endDate.split('-')[1];
@@ -432,7 +422,6 @@
 
                 evDiv.innerHTML = `<span>📅 ${dateText} <strong>${ev.title}</strong></span>`;
                 
-                // 클릭 시 해당 일정 수정 모달 오픈
                 evDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
                     openEventModal(null, ev);
@@ -444,7 +433,6 @@
             return cell;
         }
 
-        // 반복 주기 및 시작~끝 날짜 포함 여부 확인 함수
         function hasEventOnDate(ev, targetDateStr) {
             if (!ev.startDate || !ev.endDate) return false;
             
@@ -469,7 +457,7 @@
                 if (result.status === 'success') {
                     eventsData = result.events || [];
                     allUsersData = result.users || [];
-                    document.getElementById('event-count-badge.innerText').innerText = `${eventsData.length}개`;
+                    document.getElementById('event-count-badge').innerText = `${eventsData.length}개`;
                     renderMainCalendar();
                     renderEventList();
                 }
@@ -515,7 +503,6 @@
             });
         }
 
-        // 일정 등록 및 수정 폼 제출
         document.getElementById('event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const eventId = document.getElementById('ev-id').value;
@@ -526,9 +513,8 @@
             const endDate = document.getElementById('ev-end-date').value;
             const title = document.getElementById('ev-title').value;
 
-            // 요구사항: 일정을 입력할 때 해당일에 다른 일정이 우선 있으면 알림
             const conflictingEvents = eventsData.filter(ev => {
-                if (eventId && ev.id === eventId) return false; // 수정 중인 본인은 제외
+                if (eventId && ev.id === eventId) return false;
                 return startDate >= ev.startDate && startDate <= ev.endDate;
             });
 
@@ -560,7 +546,6 @@
                     closeEventModal();
                     await loadEvents();
                     
-                    // 요구사항: 일정이 수정되면 그에 해당하는 날짜로 자동 이동
                     const [y, m] = startDate.split('-');
                     currentDate = new Date(y, m - 1, 1);
                     updateSelectorsUI();
@@ -571,7 +556,6 @@
             }
         });
 
-        // 10. 음성 인식 일정 입력 기능 구현
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -593,7 +577,6 @@
                 const speechText = event.results[0][0].transcript;
                 micBtnText.innerText = "음성 입력";
                 
-                // 음성 텍스트를 파싱하여 제목에 반영하고 모달 창 오픈
                 openEventModal();
                 document.getElementById('ev-title').value = speechText;
                 alert(`🎤 인식된 음성 내용: "${speechText}"\n내용을 확인하고 저장해 주세요.`);
@@ -610,7 +593,6 @@
             };
         }
 
-        // 하단 DO IT 체크리스트 노트
         function renderDoItNotes() {
             const container = document.getElementById('do-it-container');
             container.innerHTML = '';
