@@ -6,15 +6,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .line-through-custom { text-decoration: line-through; color: #64748b; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-[#070a12] text-slate-100 min-h-screen flex flex-col items-center justify-start p-3">
 
     <!-- 1. 로그인 화면 -->
-    <div id="auth-container" class="w-full max-w-md bg-slate-900/90 backdrop-blur border border-slate-800 p-8 rounded-2xl shadow-2xl">
+    <div id="auth-container" class="w-full max-w-md bg-slate-900/90 backdrop-blur border border-slate-800 p-8 rounded-2xl shadow-2xl mt-20">
         <h1 class="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">CALENDAR SHARE</h1>
         <form id="login-form" class="space-y-4">
             <div>
@@ -33,66 +33,61 @@
     </div>
 
     <!-- 2. 메인 대시보드 화면 -->
-    <div id="app-container" class="hidden w-full max-w-7xl bg-slate-900/90 backdrop-blur border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6">
-        <!-- 상단 헤더 -->
-        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-            <div class="flex items-center gap-4">
-                <h2 id="welcome-msg" class="text-xl font-bold text-blue-400">환영합니다!</h2>
-                <span id="user-grade-badge" class="text-xs px-3 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-700 font-semibold">등급</span>
+    <div id="app-container" class="hidden w-full max-w-7xl bg-slate-900/95 backdrop-blur border border-slate-800/80 p-5 rounded-2xl shadow-2xl space-y-4">
+        
+        <!-- 상단 헤더: 사용자 정보 좌측 / 기능 버튼 우측 -->
+        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
+            <div class="flex items-center gap-3">
+                <h2 id="welcome-msg" class="text-lg font-bold text-blue-400">환영합니다!</h2>
+                <span id="user-grade-badge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-semibold">등급</span>
             </div>
             <div class="flex gap-2 items-center">
-                <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow-md transition" title="음성으로 일정 입력">
-                    🎤 <span id="mic-text">음성 입력</span>
+                <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow transition" title="음성으로 일정 입력">
+                    🎤 <span id="mic-text">음성입력</span>
                 </button>
-                <button onclick="openEventModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md">+ 일정 등록</button>
-                <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm">로그아웃</button>
+                <button onclick="openEventModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow">+ 일정등록</button>
+                <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs">로그아웃</button>
             </div>
         </div>
 
-        <!-- 메인 콘텐츠 그리드 -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- DO IT (금일 해야할 일) 영역 상단 배치 -->
+        <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+            <h3 class="text-xs font-bold text-cyan-400 mb-2">DO IT (금일 해야할 일 - 체크 시 당일 일정 및 취소선 동시 반영)</h3>
+            <div id="do-it-container" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
+        </div>
+
+        <!-- 메인 그리드 (캘린더 3칸 / 전체 일정 1칸) -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
             <!-- 중앙 메인 캘린더 영역 (3칸) -->
-            <div class="lg:col-span-3 bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 flex flex-col">
-                <!-- 캘린더 상단 컨트롤 -->
-                <div class="flex flex-wrap justify-between items-center mb-4 gap-2 bg-slate-900/60 p-3 rounded-lg border border-slate-700/50">
+            <div id="calendar-wrapper" class="lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300">
+                <!-- 캘린더 컨트롤 -->
+                <div class="flex flex-wrap justify-between items-center mb-3 gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/50">
+                    <button onclick="changeMonth(-1)" id="prev-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">&lt; 지난달</button>
                     <div class="flex items-center gap-2">
-                        <button onclick="changeMonth(-1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700">&lt;</button>
-                        <div id="mini-prev-box" class="cursor-pointer text-xs text-slate-400 hover:text-blue-400 font-semibold" onclick="goToTargetMonth(-1)">지난달</div>
+                        <select id="select-year" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
+                        <select id="select-month" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
+                        <button onclick="goToday()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1 rounded text-xs font-semibold">오늘</button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <select id="select-year" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-sm rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
-                        <select id="select-month" onchange="onYearMonthChange()" class="bg-slate-800 border border-slate-700 text-white text-sm rounded px-2 py-1 font-bold focus:outline-none focus:border-blue-500"></select>
-                        <button onclick="goToday()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-1 rounded text-xs font-semibold">오늘</button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div id="mini-next-box" class="cursor-pointer text-xs text-slate-400 hover:text-blue-400 font-semibold" onclick="goToTargetMonth(1)">다음달</div>
-                        <button onclick="changeMonth(1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700">&gt;</button>
-                    </div>
+                    <button onclick="changeMonth(1)" id="next-month-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs border border-slate-700 text-slate-300 font-medium">다음달 &gt;</button>
                 </div>
 
                 <!-- 캘린더 본문 헤더 -->
-                <div class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2.5 rounded-t-lg border-x border-t border-slate-700">
+                <div class="grid grid-cols-7 text-center bg-slate-800 text-xs font-bold text-slate-300 py-2 rounded-t-lg border-x border-t border-slate-700">
                     <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
                 </div>
                 <!-- 그리드 -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[580px] rounded-b-lg overflow-hidden border border-slate-700"></div>
-                <p class="text-[11px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 해당 일정이 등록되며, 등록된 일정 바를 클릭하면 수정할 수 있습니다.</p>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-slate-700/50 text-sm flex-1 min-h-[520px] rounded-b-lg overflow-hidden border border-slate-700"></div>
+                <p class="text-[10px] text-slate-400 text-center mt-2">💡 날짜를 **더블클릭**하면 일정 등록, 등록된 일정을 **클릭**하여 수정하거나 **드래그(이동)**할 수 있습니다.</p>
             </div>
 
             <!-- 우측 사이드 (전체 일정 리스트) -->
-            <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 flex flex-col h-full">
-                <h3 class="text-sm font-bold text-blue-400 mb-3 flex items-center justify-between">
-                    <span>등록된 전체 일정</span>
+            <div class="bg-slate-800/30 p-3.5 rounded-xl border border-slate-700/60 flex flex-col h-full">
+                <h3 class="text-xs font-bold text-blue-400 mb-2.5 flex items-center justify-between">
+                    <span>전체 일정 (날짜순)</span>
                     <span id="event-count-badge" class="text-[10px] bg-blue-950 px-2 py-0.5 rounded text-blue-300">0개</span>
                 </h3>
-                <div id="event-list-container" class="space-y-2.5 overflow-y-auto max-h-[570px] text-xs flex-1 pr-1"></div>
+                <div id="event-list-container" class="space-y-2 overflow-y-auto max-h-[520px] text-xs flex-1 pr-1"></div>
             </div>
-        </div>
-
-        <!-- 하단 DO IT 노트 영역 -->
-        <div class="bg-slate-800/40 p-5 rounded-xl border border-slate-700/60">
-            <h3 class="text-md font-bold text-cyan-400 mb-3">DO IT (금일 해야할 일)</h3>
-            <div id="do-it-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
     </div>
 
@@ -128,11 +123,11 @@
                 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">시작일 (월/일)</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">시작일</label>
                         <input type="date" id="ev-start-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">마감일 (월/일)</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">마감일</label>
                         <input type="date" id="ev-end-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs">
                     </div>
                 </div>
@@ -179,11 +174,12 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby42XXjHLwBMVg_UmWFDu-AKgfEGbLA1arjnEIdOqt-PkTeh35kdGELrVP_wOTyUWcE/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4xfgF27-Hx0YHf03FCjQyRL_VnD6s1IbeE1u_vHLLA2zLXe2jQfU9yh-bL7rmOILy/exec";
         let currentUser = null;
         let currentDate = new Date();
         let eventsData = [];
         let allUsersData = [];
+        let draggedEventId = null;
 
         function openSignupModal() { document.getElementById('signup-modal').classList.remove('hidden'); }
         function closeSignupModal() { document.getElementById('signup-modal').classList.add('hidden'); document.getElementById('signup-form').reset(); }
@@ -307,36 +303,44 @@
         }
 
         function updateSelectorsUI() {
-            document.getElementById('select-year').value = currentDate.getFullYear();
-            document.getElementById('select-month').value = currentDate.getMonth();
-            document.getElementById('mini-prev-box').innerText = `${new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1).getMonth() + 1}월 달력`;
-            document.getElementById('mini-next-box').innerText = `${new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1).getMonth() + 1}월 달력`;
+            const y = currentDate.getFullYear();
+            const m = currentDate.getMonth();
+            document.getElementById('select-year').value = y;
+            document.getElementById('select-month').value = m;
+
+            // 상단 이전달/다음달 버튼에 작은 달력 이름 표시
+            const prevM = new Date(y, m - 1, 1).getMonth() + 1;
+            const nextM = new Date(y, m + 1, 1).getMonth() + 1;
+            document.getElementById('prev-month-btn').innerText = `< ${prevM}월 달력`;
+            document.getElementById('next-month-btn').innerText = `${nextM}월 달력 >`;
+
+            // 월이 바뀔 때 배경 틴트 컬러 미세 변경
+            const wrapper = document.getElementById('calendar-wrapper');
+            const tints = ['bg-slate-800/20', 'bg-blue-950/20', 'bg-indigo-950/20', 'bg-cyan-950/20', 'bg-slate-900/40'];
+            wrapper.className = `lg:col-span-3 p-4 rounded-xl border border-slate-700/60 flex flex-col transition-colors duration-300 ${tints[m % tints.length]}`;
         }
 
         function onYearMonthChange() {
             const y = parseInt(document.getElementById('select-year').value);
             const m = parseInt(document.getElementById('select-month').value);
             currentDate = new Date(y, m, 1);
-            renderMainCalendar();
             updateSelectorsUI();
+            renderMainCalendar();
+            renderEventList();
         }
 
         function changeMonth(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
             updateSelectorsUI();
             renderMainCalendar();
+            renderEventList();
         }
 
         function goToday() {
             currentDate = new Date();
             updateSelectorsUI();
             renderMainCalendar();
-        }
-
-        function goToTargetMonth(offset) {
-            currentDate.setMonth(currentDate.getMonth() + offset);
-            updateSelectorsUI();
-            renderMainCalendar();
+            renderEventList();
         }
 
         function renderMainCalendar() {
@@ -374,9 +378,57 @@
 
         function createCell(dayNum, dateStr, isOtherMonth) {
             const cell = document.createElement('div');
-            cell.className = `bg-slate-900/90 p-1.5 min-h-[95px] border border-slate-800/80 flex flex-col cursor-pointer hover:bg-slate-800 transition ${isOtherMonth ? 'opacity-30' : ''}`;
+            cell.className = `bg-slate-900/90 p-1.5 min-h-[90px] border border-slate-800/80 flex flex-col cursor-pointer hover:bg-slate-800/90 transition ${isOtherMonth ? 'opacity-30' : ''}`;
             
             cell.innerHTML = `<span class="font-bold text-xs ${isOtherMonth ? 'text-slate-500' : 'text-slate-300'} mb-1">${dayNum}</span>`;
+
+            // 드래그 앤 드롭으로 날짜 이동 기능
+            cell.addEventListener('dragover', (e) => e.preventDefault());
+            cell.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                if (!draggedEventId) return;
+                const evToMove = eventsData.find(ev => ev.id === draggedEventId);
+                if (!evToMove) return;
+
+                // 기간 유지하면서 시작일과 마감일 평행 이동
+                const oldStart = new Date(evToMove.startDate);
+                const newStart = new Date(dateStr);
+                const diffTime = newStart - oldStart;
+                const oldEnd = new Date(evToMove.endDate);
+                const newEnd = new Date(oldEnd.getTime() + diffTime);
+
+                const newStartDateStr = dateStr;
+                const newEndDateStr = newEnd.toISOString().split('T')[0];
+
+                evToMove.startDate = newStartDateStr;
+                evToMove.endDate = newEndDateStr;
+
+                // 백엔드 업데이트 요청
+                const payload = {
+                    action: 'updateEvent',
+                    id: evToMove.id,
+                    title: evToMove.title,
+                    startDate: evToMove.startDate,
+                    endDate: evToMove.endDate,
+                    participants: evToMove.participants || "",
+                    memo: evToMove.memo || "",
+                    repeatCycle: evToMove.repeatCycle || "없음",
+                    location: evToMove.location || "",
+                    openRange: evToMove.openRange || "개인",
+                    author: evToMove.author || currentUser.name,
+                    authorEmail: evToMove.authorEmail || currentUser.email
+                };
+
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                draggedEventId = null;
+                await loadEvents();
+                
+                // 해당 날짜로 자동 포커스 이동
+                const [y, m] = dateStr.split('-');
+                currentDate = new Date(y, m - 1, 1);
+                updateSelectorsUI();
+                renderMainCalendar();
+            });
 
             cell.addEventListener('dblclick', () => {
                 const [y, m] = dateStr.split('-');
@@ -384,15 +436,6 @@
                 updateSelectorsUI();
                 renderMainCalendar();
                 openEventModal(dateStr);
-            });
-
-            cell.addEventListener('click', () => {
-                const [y, m] = dateStr.split('-');
-                if (parseInt(m) - 1 !== currentDate.getMonth()) {
-                    currentDate = new Date(y, m - 1, 1);
-                    updateSelectorsUI();
-                    renderMainCalendar();
-                }
             });
 
             const visibleEvents = eventsData.filter(ev => {
@@ -409,10 +452,11 @@
 
             visibleEvents.forEach(ev => {
                 cell.classList.remove('bg-slate-900/90');
-                cell.classList.add('bg-blue-950/40', 'border-blue-900/60');
+                cell.classList.add('bg-blue-950/50', 'border-blue-900/60');
 
                 const evDiv = document.createElement('div');
-                evDiv.className = 'text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium px-1.5 py-0.5 rounded mb-1 truncate shadow flex items-center justify-between';
+                evDiv.draggable = true;
+                evDiv.className = `text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium px-1.5 py-0.5 rounded mb-1 truncate shadow flex items-center justify-between cursor-grab ${ev.isCompleted ? 'line-through opacity-70 bg-slate-700' : ''}`;
                 
                 const startM = ev.startDate.split('-')[1];
                 const startD = ev.startDate.split('-')[2];
@@ -421,6 +465,8 @@
                 const dateText = (ev.startDate === ev.endDate) ? `${startM}/${startD}` : `${startM}/${startD}~${endM}/${endD}`;
 
                 evDiv.innerHTML = `<span>📅 ${dateText} <strong>${ev.title}</strong></span>`;
+                
+                evDiv.addEventListener('dragstart', () => { draggedEventId = ev.id; });
                 
                 evDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -435,7 +481,6 @@
 
         function hasEventOnDate(ev, targetDateStr) {
             if (!ev.startDate || !ev.endDate) return false;
-            
             if (ev.repeatCycle === '없음') {
                 return targetDateStr >= ev.startDate && targetDateStr <= ev.endDate;
             } else if (ev.repeatCycle === '매월') {
@@ -457,7 +502,6 @@
                 if (result.status === 'success') {
                     eventsData = result.events || [];
                     allUsersData = result.users || [];
-                    document.getElementById('event-count-badge').innerText = `${eventsData.length}개`;
                     renderMainCalendar();
                     renderEventList();
                 }
@@ -470,7 +514,11 @@
             const container = document.getElementById('event-list-container');
             container.innerHTML = '';
 
-            const myEvents = eventsData.filter(ev => {
+            const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+            // 해당 월 전체 일정만 필터링 및 날짜순 정렬
+            let myEvents = eventsData.filter(ev => {
+                if (!ev.startDate.startsWith(currentYearMonth)) return false;
                 if (currentUser.grade === '관리자') return true;
                 if (ev.openRange === '개인') {
                     return ev.authorEmail === currentUser.email || (ev.participants && ev.participants.includes(currentUser.email));
@@ -481,24 +529,34 @@
                 return false;
             });
 
+            myEvents.sort((a, b) => a.startDate.localeCompare(b.startDate));
             document.getElementById('event-count-badge').innerText = `${myEvents.length}개`;
 
             if (myEvents.length === 0) {
-                container.innerHTML = '<p class="text-slate-500 text-center py-6">등록된 일정이 없습니다.</p>';
+                container.innerHTML = '<p class="text-slate-500 text-center py-6">해당 월에 등록된 일정이 없습니다.</p>';
                 return;
             }
 
+            const todayStr = new Date().toISOString().split('T')[0];
+
             myEvents.forEach(ev => {
+                const isTodayEvent = (ev.startDate === todayStr || ev.endDate === todayStr);
                 const div = document.createElement('div');
-                div.className = 'bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/60 hover:border-blue-500/50 cursor-pointer transition';
-                div.innerHTML = `<p class="font-bold text-blue-300 flex justify-between"><span>${ev.title}</span><span class="text-[10px] text-cyan-400 font-normal">[${ev.repeatCycle}]</span></p>
-                                 <p class="text-[10px] text-slate-400 mt-1">📅 ${ev.startDate} ~ ${ev.endDate}</p>
-                                 ${ev.location ? `<p class="text-[10px] text-slate-400">📍 ${ev.location}</p>` : ''}
-                                 ${ev.memo ? `<p class="text-[10px] text-slate-400 truncate">📝 ${ev.memo}</p>` : ''}`;
+                // 당일 일정은 조금 크게, 나머지는 자동 비율 축소
+                div.className = `bg-slate-900/90 rounded-lg border transition ${isTodayEvent ? 'p-3 border-blue-500/80 shadow-md shadow-blue-950/50' : 'p-2 border-slate-700/60 opacity-90'} hover:border-blue-400 cursor-pointer`;
                 
-                div.addEventListener('click', () => {
-                    openEventModal(null, ev);
-                });
+                // 연도 시간 삭제 후 YY/MM/DD 형태로 압축 표기
+                const fmtStart = ev.startDate.replace(/^\d{2}/, '');
+                const fmtEnd = ev.endDate.replace(/^\d{2}/, '');
+
+                div.innerHTML = `<p class="font-bold ${isTodayEvent ? 'text-blue-300 text-xs' : 'text-slate-300 text-[11px]'} flex justify-between">
+                                    <span class="${ev.isCompleted ? 'line-through text-slate-500' : ''}">${ev.title}</span>
+                                    <span class="text-[10px] text-cyan-400 font-normal">[${ev.repeatCycle}]</span>
+                                 </p>
+                                 <p class="text-[10px] text-slate-400 mt-0.5">📅 ${fmtStart} ~ ${fmtEnd}</p>
+                                 ${ev.location ? `<p class="text-[10px] text-slate-400">📍 ${ev.location}</p>` : ''}`;
+                
+                div.addEventListener('click', () => openEventModal(null, ev));
                 container.appendChild(div);
             });
         }
@@ -575,7 +633,7 @@
 
             recognition.onresult = async (event) => {
                 const speechText = event.results[0][0].transcript;
-                micBtnText.innerText = "음성 입력";
+                micBtnText.innerText = "음성입력";
                 
                 openEventModal();
                 document.getElementById('ev-title').value = speechText;
@@ -583,25 +641,28 @@
             };
 
             recognition.onerror = () => {
-                micBtnText.innerText = "음성 입력";
+                micBtnText.innerText = "음성입력";
                 alert("음성 인식 중 오류가 발생했습니다. 다시 시도해 주세요.");
             };
 
             recognition.onspeechend = () => {
-                micBtnText.innerText = "음성 입력";
+                micBtnText.innerText = "음성입력";
                 recognition.stop();
             };
         }
 
+        // DO IT 노트 입력 및 당일 일정 동기화 / 취소선 연동
         function renderDoItNotes() {
             const container = document.getElementById('do-it-container');
             container.innerHTML = '';
-            for (let i = 1; i <= 6; i++) {
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            for (let i = 1; i <= 3; i++) {
                 const savedText = localStorage.getItem(`doit_text_${i}`) || '';
                 const savedCheck = localStorage.getItem(`doit_check_${i}`) === 'true';
 
                 const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-center gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/50';
+                wrapper.className = 'flex items-center gap-2 bg-slate-900/90 p-2 rounded-lg border border-slate-700/60';
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -611,16 +672,42 @@
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.value = savedText;
-                input.placeholder = `할 일 ${i}번을 입력하세요`;
+                input.placeholder = `할 일 ${i}번 (당일 일정 자동 등록)`;
                 input.className = `w-full bg-transparent text-xs text-white focus:outline-none ${savedCheck ? 'line-through-custom' : ''}`;
 
-                checkbox.addEventListener('change', () => {
+                checkbox.addEventListener('change', async () => {
                     localStorage.setItem(`doit_check_${i}`, checkbox.checked);
                     input.classList.toggle('line-through-custom', checkbox.checked);
+
+                    // 달력 일정에도 취소선 및 완료 상태 동기화 처리
+                    const matchingEvent = eventsData.find(ev => ev.title === input.value && ev.startDate === todayStr);
+                    if (matchingEvent) {
+                        matchingEvent.isCompleted = checkbox.checked;
+                        renderMainCalendar();
+                        renderEventList();
+                    }
                 });
 
-                input.addEventListener('input', () => {
+                input.addEventListener('blur', async () => {
                     localStorage.setItem(`doit_text_${i}`, input.value);
+                    if (input.value.trim()) {
+                        // 입력 시 당일 일정으로 자동 등록 백엔드 전송
+                        const payload = {
+                            action: 'addEvent',
+                            title: input.value,
+                            startDate: todayStr,
+                            endDate: todayStr,
+                            participants: currentUser.email,
+                            memo: 'DO IT 자동 등록',
+                            repeatCycle: '없음',
+                            location: '',
+                            openRange: '개인',
+                            author: currentUser.name,
+                            authorEmail: currentUser.email
+                        };
+                        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                        await loadEvents();
+                    }
                 });
 
                 wrapper.appendChild(checkbox);
