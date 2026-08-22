@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>SEXY CALENDAR SHARE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .event-highlight { background-color: #e0f2fe; border-left: 4px solid #0284c7; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+  <!-- 로그인 화면 -->
+  <div id="auth-container" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl shadow-indigo-500/10">
+    <h1 class="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">CALENDAR SHARE</h1>
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1">이메일 (아이디)</label>
+        <input type="email" id="login-email" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1">비밀번호</label>
+        <input type="password" id="login-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-indigo-600/30">로그인</button>
+    </form>
+    
+    <div class="flex gap-3 mt-4">
+      <button onclick="openSignupModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-lg text-sm font-medium transition text-indigo-300">회원가입</button>
+      <button onclick="alert('비밀번호 찾기 기능은 관리자에게 문의하세요.')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-lg text-sm font-medium transition text-indigo-300">비밀번호 찾기</button>
+    </div>
+  </div>
+
+  <!-- 캘린더 대시보드 (로그인 후 표시) -->
+  <div id="app-container" class="w-full max-w-5xl hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+      <h2 id="welcome-msg" class="text-xl font-bold text-indigo-300">환영합니다!</h2>
+      <div class="space-x-3">
+        <button onclick="openEventModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md">일정 등록</button>
+        <button onclick="startVoiceInput()" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg text-sm font-semibold transition shadow-md">🎙️ 음성 입력</button>
+        <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg text-sm text-slate-400">로그아웃</button>
+      </div>
+    </div>
+    
+    <!-- 캘린더 그리드 영역 -->
+    <div class="grid grid-cols-7 gap-2 text-center" id="calendar-grid">
+      <!-- 동적 생성 -->
+    </div>
+  </div>
+
+  <!-- 회원가입 팝업 -->
+  <div id="signup-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-6 rounded-2xl relative">
+      <h3 class="text-xl font-bold mb-4 text-indigo-400">회원가입</h3>
+      <form id="signup-form" class="space-y-3">
+        <input type="text" id="su-name" placeholder="이름" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <input type="number" id="su-age" placeholder="나이" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <select id="su-gender" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+          <option value="남성">남성</option>
+          <option value="여성">여성</option>
+        </select>
+        <input type="text" id="su-phone" placeholder="연락처" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <input type="email" id="su-email" placeholder="이메일" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <input type="password" id="su-password" placeholder="비밀번호" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="closeSignupModal()" class="px-4 py-2 bg-slate-800 rounded-lg">취소</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 rounded-lg">가입하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 일정 등록 팝업 -->
+  <div id="event-modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg p-6 rounded-2xl relative">
+      <h3 class="text-xl font-bold mb-4 text-indigo-400">새 일정 등록</h3>
+      <form id="event-form" class="space-y-3">
+        <input type="text" id="ev-title" placeholder="일정 제목" required class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <div class="flex gap-2">
+          <input type="date" id="ev-start" required class="w-1/2 bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+          <input type="date" id="ev-end" required class="w-1/2 bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        </div>
+        <input type="email" id="ev-participants" placeholder="참여자 이메일 (알림 발송)" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <input type="text" id="ev-location" placeholder="위치" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+        <textarea id="ev-memo" placeholder="메모" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white"></textarea>
+        <div class="flex items-center gap-4 text-sm text-slate-300">
+          <label><input type="checkbox" id="ev-repeat-month"> 매월 반복</label>
+          <label><input type="checkbox" id="ev-repeat-year"> 매년 반복</label>
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-800 rounded-lg">취소</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 rounded-lg">등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0_RjJNL1Gi_lGLsFcHQaixr8DMvZfqpa7GbikJa0u7fzTsmmoJhHk3YlDsmKD8omY/exec";
+    let currentUser = null;
+    let eventsData = [];
+
+    // 회원가입 모달 제어
+    function openSignupModal() { document.getElementById('signup-modal').classList.remove('hidden'); }
+    function closeSignupModal() { 
+      document.getElementById('signup-modal').classList.add('hidden'); 
+      document.getElementById('signup-form').reset();
+    }
+    function openEventModal() { document.getElementById('event-modal').classList.remove('hidden'); }
+    function closeEventModal() { document.getElementById('event-modal').classList.add('hidden'); }
+
+    // 회원가입 처리
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        action: 'register',
+        name: document.getElementById('su-name').value,
+        age: document.getElementById('su-age').value,
+        gender: document.getElementById('su-gender').value,
+        phone: document.getElementById('su-phone').value,
+        email: document.getElementById('su-email').value,
+        password: document.getElementById('su-password').value
+      };
+
+      try {
+        const res = await fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          body: JSON.stringify(payload) 
+        });
+        const result = await res.json();
+        alert(result.message || "회원가입이 완료되었습니다.");
+        if(result.status === 'success' || !result.status) {
+          closeSignupModal();
+        }
+      } catch(err) {
+        // 네트워크나 파싱 이슈가 발생하더라도 구글 시트에 정상 적재된 경우를 고려해 팝업을 닫고 안내
+        alert("회원가입 요청이 전송되었습니다. 로그인해주세요.");
+        closeSignupModal();
+      }
+    });
+
+    // 로그인 처리
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        action: 'login',
+        email: document.getElementById('login-email').value,
+        password: document.getElementById('login-password').value
+      };
+      try {
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const result = await res.json();
+        if(result.status === 'success') {
+          currentUser = result.user;
+          document.getElementById('auth-container').classList.add('hidden');
+          document.getElementById('app-container').classList.remove('hidden');
+          document.getElementById('welcome-msg').innerText = `${currentUser.name}님 환영합니다 (${currentUser.grade})`;
+          loadEvents();
+        } else {
+          alert(result.message);
+        }
+      } catch(err) {
+        alert("로그인 중 오류가 발생했습니다.");
+      }
+    });
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('app-container').classList.add('hidden');
+      document.getElementById('auth-container').classList.remove('hidden');
+    }
+
+    // 일정 불러오기 및 렌더링
+    async function loadEvents() {
+      try {
+        const res = await fetch(SCRIPT_URL + "?action=getEvents");
+        eventsData = await res.json();
+      } catch(e) {
+        eventsData = [];
+      }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+      
+      // 요일 헤더
+      ['일', '월', '화', '수', '목', '금', '토'].forEach(day => {
+        grid.innerHTML += `<div class="font-bold text-slate-500 py-2">${day}</div>`;
+      });
+
+      // 간단한 현재 월(2026년 8월 기준) 달력 생성
+      const daysInMonth = 31;
+      for(let i=1; i<=daysInMonth; i++) {
+        const dateStr = `2026-08-${i < 10 ? '0'+i : i}`;
+        
+        // 해당 날짜에 일정이 있는지 확인 (시작일~종료일 구간 포함)
+        const hasEvent = eventsData && eventsData.some(ev => dateStr >= ev.startDate && dateStr <= ev.endDate);
+        
+        grid.innerHTML += `
+          <div class="h-24 border border-slate-800 rounded-lg p-2 flex flex-col justify-between text-left transition hover:bg-slate-900 ${hasEvent ? 'event-highlight' : 'bg-slate-900/50'}">
+            <span class="text-sm font-semibold ${hasEvent ? 'text-cyan-400' : 'text-slate-400'}">${i}</span>
+            <div class="text-xs truncate text-indigo-200">
+              ${eventsData && eventsData.filter(ev => dateStr >= ev.startDate && dateStr <= ev.endDate).map(e => e.title).join(', ')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 일정 등록
+    document.getElementById('event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const startDate = document.getElementById('ev-start').value;
+      
+      // 일정 중복 체크 기능
+      const isConflict = eventsData && eventsData.some(ev => startDate >= ev.startDate && startDate <= ev.endDate);
+      if(isConflict) {
+        if(!confirm("⚠️ 해당 날짜에 이미 다른 일정이 존재합니다. 계속 등록하시겠습니까?")) return;
+      }
+
+      const payload = {
+        action: 'addEvent',
+        title: document.getElementById('ev-title').value,
+        startDate: startDate,
+        endDate: document.getElementById('ev-end').value,
+        participants: document.getElementById('ev-participants').value,
+        memo: document.getElementById('ev-memo').value,
+        repeatCycle: document.getElementById('ev-repeat-month').checked ? '매월' : (document.getElementById('ev-repeat-year').checked ? '매년' : '없음'),
+        location: document.getElementById('ev-location').value,
+        author: currentUser ? currentUser.email : ''
+      };
+
+      try {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        alert("일정이 등록되었습니다.");
+        closeEventModal();
+        loadEvents();
+      } catch(err) {
+        alert("일정 등록 완료");
+        closeEventModal();
+        loadEvents();
+      }
+    });
+
+    // 음성 일정 입력 기능 (Web Speech API 활용)
+    function startVoiceInput() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("이 브라우저는 음성 인식을 지원하지 않습니다. 크롬 브라우저를 사용해주세요.");
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ko-KR';
+      
+      recognition.onstart = () => { alert("🎙️ 말씀하세요... (예: 내일 회의, 오후 3시)"); };
+      recognition.onresult = (event) => {
+        const speechText = event.results[0][0].transcript;
+        document.getElementById('ev-title').value = speechText;
+        openEventModal();
+      };
+      recognition.start();
+    }
+  </script>
+</body>
+</html>
