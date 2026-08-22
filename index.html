@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>CALENDAR SHARE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .event-highlight { background-color: #e0f2fe; border-left: 4px solid #0284c7; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- 로그인 화면 -->
+    <div id="auth-container" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl shadow-indigo-500/10">
+        <h1 class="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">CALENDAR SHARE</h1>
+        
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-1">이메일 (아이디)</label>
+                <input type="email" id="login-email" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-1">비밀번호</label>
+                <input type="password" id="login-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg transition duration-200">로그인</button>
+            <div class="flex justify-between text-sm mt-4">
+                <button type="button" onclick="openSignupModal()" class="text-indigo-400 hover:underline">회원가입</button>
+                <button type="button" onclick="openFindPasswordModal()" class="text-slate-400 hover:underline">비밀번호 찾기</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 캘린더 메인 화면 (로그인 후 표시) -->
+    <div id="app-container" class="hidden w-full max-w-6xl bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h2 id="welcome-msg" class="text-xl font-bold text-indigo-400">환영합니다!</h2>
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm">로그아웃</button>
+        </div>
+        <div class="bg-slate-800 p-6 rounded-xl text-center text-slate-400">
+            캘린더 화면 영역입니다. (정상 로그인 완료)
+        </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div id="signup-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="text-xl font-bold text-indigo-400 mb-4">회원가입</h3>
+            <form id="signup-form" class="space-y-3">
+                <input type="text" id="su-name" placeholder="이름" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <input type="number" id="su-age" placeholder="나이" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <select id="su-gender" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                    <option value="남성">남성</option>
+                    <option value="여성">여성</option>
+                </select>
+                <input type="text" id="su-phone" placeholder="연락처 (예: 01012345678)" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <input type="email" id="su-email" placeholder="이메일 (아이디)" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <input type="password" id="su-password" placeholder="비밀번호" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeSignupModal()" class="px-4 py-2 bg-slate-800 rounded-lg text-sm">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 rounded-lg text-sm font-semibold">가입하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 비밀번호 찾기/변경 모달 -->
+    <div id="find-pw-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md">
+            <h3 class="text-xl font-bold text-indigo-400 mb-4">비밀번호 변경</h3>
+            <form id="find-pw-form" class="space-y-3">
+                <p class="text-xs text-slate-400 mb-2">가입하신 이름과 이메일을 입력 후 새로운 비밀번호로 변경하세요.</p>
+                <input type="text" id="fp-name" placeholder="이름" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <input type="email" id="fp-email" placeholder="이메일 (아이디)" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <input type="password" id="fp-new-password" placeholder="새로운 비밀번호" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeFindPasswordModal()" class="px-4 py-2 bg-slate-800 rounded-lg text-sm">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 rounded-lg text-sm font-semibold">비밀번호 변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9Lykm78qR-6SuTCD2FXsxGs2EiQOk4V2m4xkvGuyaJZqp_qf04mTexxNcAdYNmLyS/exec";
+        let currentUser = null;
+
+        // 모달 제어 함수들
+        function openSignupModal() { document.getElementById('signup-modal').classList.remove('hidden'); }
+        function closeSignupModal() { document.getElementById('signup-modal').classList.add('hidden'); document.getElementById('signup-form').reset(); }
+        
+        function openFindPasswordModal() { document.getElementById('find-pw-modal').classList.remove('hidden'); }
+        function closeFindPasswordModal() { document.getElementById('find-pw-modal').classList.add('hidden'); document.getElementById('find-pw-form').reset(); }
+
+        // 회원가입 처리
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: 'register',
+                name: document.getElementById('su-name').value,
+                age: document.getElementById('su-age').value,
+                gender: document.getElementById('su-gender').value,
+                phone: document.getElementById('su-phone').value,
+                email: document.getElementById('su-email').value,
+                password: document.getElementById('su-password').value
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                alert(result.message);
+                if (result.status === 'success') {
+                    closeSignupModal();
+                }
+            } catch (err) {
+                alert('통신 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 비밀번호 변경 처리
+        document.getElementById('find-pw-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: 'resetPassword',
+                name: document.getElementById('fp-name').value,
+                email: document.getElementById('fp-email').value,
+                newPassword: document.getElementById('fp-new-password').value
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                alert(result.message);
+                if (result.status === 'success') {
+                    closeFindPasswordModal();
+                }
+            } catch (err) {
+                alert('통신 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 로그인 처리
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: 'login',
+                email: document.getElementById('login-email').value,
+                password: document.getElementById('login-password').value
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    currentUser = result.user;
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    document.getElementById('welcome-msg').innerText = `${currentUser.name}님 환영합니다!`;
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert('로그인 통신 중 오류가 발생했습니다.');
+            }
+        });
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        }
+    </script>
+</body>
+</html>
